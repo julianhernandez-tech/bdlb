@@ -1,0 +1,9 @@
+{"ts": "2026-05-13", "phase": "B0", "event": "preflight_done", "detail": "bdlb tree created, brief written"}
+{"ts": "2026-05-13T17:23Z", "phase": "B2_wave1", "event": "wave1_complete", "specs_written": 5, "retries": 0}
+{"ts": "2026-05-13T17:23Z", "phase": "B2_wave1", "event": "external_staar_file_modified_concurrent", "path": "test_creation/outputs/grade5/g5.7_2026/qc_reports/test_level_qc.json", "note": "STAAR layer-3 QC ran concurrently with this build, no BDLB signatures, not caused by BDLB sub-agents"}
+{"ts": "2026-05-13T17:55Z", "phase": "B2_wave2", "event": "wave2_complete", "specs_written": 5, "retries": 0}
+{"ts": "2026-05-13T17:55Z", "phase": "B2_wave3", "event": "wave3_complete", "specs_written": 5, "retries": 0}
+{"ts": "2026-05-13T17:55Z", "phase": "B2_wave4", "event": "wave4_complete", "specs_written": 1, "retries": 0}
+{"ts": "2026-05-13T17:55Z", "phase": "B3", "event": "consistency_passed", "overall_passed": true, "checks_run": 7}
+{"ts": "2026-05-13T17:55Z", "phase": "B4", "event": "readme_written"}
+{"ts": "2026-05-13T17:55Z", "phase": "final", "event": "build_complete", "agents": 16, "schemas": 9, "specs_failed": 0, "retries": 0, "isolation_violations": 0, "concurrent_staar_work_observed_at_paths": ["test_creation/outputs/grade4/g4.7_2026/...", "test_creation/outputs/grade5/g5.7_2026/...", "test_creation/render_harness/run_layer3_g4_7.js"]}

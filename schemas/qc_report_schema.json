@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdlb.local/schemas/qc_report_schema.json",
+  "title": "BDLB QC Report",
+  "description": "Common contract for BDLB QC outputs across 6 variants: lesson_deterministic, lesson_smart, article_deterministic, article_smart, image_qc, article_render. Discriminated on report_type via oneOf.",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/$defs/lesson_deterministic_report" },
+    { "$ref": "#/$defs/lesson_smart_report" },
+    { "$ref": "#/$defs/article_deterministic_report" },
+    { "$ref": "#/$defs/article_smart_report" },
+    { "$ref": "#/$defs/image_qc_report" },
+    { "$ref": "#/$defs/article_render_report" }
+  ],
+  "$defs": {
+    "gate_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate_id", "passed", "detail"],
+      "properties": {
+        "gate_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable identifier of the QC gate evaluated."
+        },
+        "passed": { "type": "boolean" },
+        "detail": {
+          "type": "string",
+          "description": "Human-readable evidence string. May be empty when passed=true."
+        }
+      }
+    },
+    "common_properties": {
+      "report_type": {
+        "type": "string",
+        "enum": [
+          "lesson_deterministic",
+          "lesson_smart",
+          "article_deterministic",
+          "article_smart",
+          "image_qc",
+          "article_render"
+        ]
+      },
+      "target_ref": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Repo-relative path to the artifact under QC."
+      },
+      "target_kind": {
+        "type": "string",
+        "enum": ["item", "article", "image", "tier_set", "lesson"]
+      },
+      "passed": { "type": "boolean" },
+      "failures": {
+        "type": "array",
+        "items": { "type": "string", "minLength": 1 },
+        "description": "List of gate_ids that failed. Must be a subset of gates[*].gate_id where passed=false."
+      },
+      "created_at": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+
+    "lesson_deterministic_report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "report_type",
+        "target_ref",
+        "target_kind",
+        "passed",
+        "gates",
+        "failures",
+        "created_at"
+      ],
+      "properties": {
+        "report_type": { "type": "string", "const": "lesson_deterministic" },
+        "target_ref": { "$ref": "#/$defs/common_properties/target_ref" },
+        "target_kind": { "$ref": "#/$defs/common_properties/target_kind" },
+        "passed": { "type": "boolean" },
+        "gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["gate_id", "passed", "detail"],
+            "properties": {
+              "gate_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "SCHEMA_VALID",
+                  "ANSWER_KEY_PRESENT",
+                  "OPTION_COUNT",
+                  "NO_ANSWER_LEAK_IN_STEM",
+                  "FULLWIDTH_DOLLAR_USED",
+                  "NO_RAW_LT_GT",
+                  "PHRASING_RULES",
+                  "VARIATION_UNIQUENESS"
+                ]
+              },
+              "passed": { "type": "boolean" },
+              "detail": { "type": "string" }
+            }
+          }
+        },
+        "failures": { "$ref": "#/$defs/common_properties/failures" },
+        "created_at": { "$ref": "#/$defs/common_properties/created_at" }
+      }
+    },
+
+    "lesson_smart_report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "report_type",
+        "target_ref",
+        "target_kind",
+        "passed",
+        "gates",
+        "failures",
+        "created_at"
+      ],
+      "properties": {
+        "report_type": { "type": "string", "const": "lesson_smart" },
+        "target_ref": { "$ref": "#/$defs/common_properties/target_ref" },
+        "target_kind": { "$ref": "#/$defs/common_properties/target_kind" },
+        "passed": { "type": "boolean" },
+        "gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["gate_id", "passed", "detail"],
+            "properties": {
+              "gate_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "PEDAGOGICAL_SOUNDNESS",
+                  "DISTRACTOR_PLAUSIBILITY",
+                  "COGNITIVE_DEMAND_MATCH",
+                  "TIER_RIGOR_MATCH",
+                  "SCAFFOLD_INTEGRITY",
+                  "HARD_TIER_MATCHES_SEED"
+                ]
+              },
+              "passed": { "type": "boolean" },
+              "detail": { "type": "string" }
+            }
+          }
+        },
+        "failures": { "$ref": "#/$defs/common_properties/failures" },
+        "created_at": { "$ref": "#/$defs/common_properties/created_at" }
+      }
+    },
+
+    "article_deterministic_report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "report_type",
+        "target_ref",
+        "target_kind",
+        "passed",
+        "gates",
+        "failures",
+        "created_at"
+      ],
+      "properties": {
+        "report_type": { "type": "string", "const": "article_deterministic" },
+        "target_ref": { "$ref": "#/$defs/common_properties/target_ref" },
+        "target_kind": { "$ref": "#/$defs/common_properties/target_kind" },
+        "passed": { "type": "boolean" },
+        "gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["gate_id", "passed", "detail"],
+            "properties": {
+              "gate_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "SCHEMA_VALID",
+                  "LINK_INTEGRITY_VAR_IDS",
+                  "VOCABULARY_WHITELIST",
+                  "LENGTH_BANDS",
+                  "HEADING_HIERARCHY",
+                  "NO_FORBIDDEN_PHRASES",
+                  "NO_RAW_HTML_OR_DOLLAR"
+                ]
+              },
+              "passed": { "type": "boolean" },
+              "detail": { "type": "string" }
+            }
+          }
+        },
+        "failures": { "$ref": "#/$defs/common_properties/failures" },
+        "created_at": { "$ref": "#/$defs/common_properties/created_at" }
+      }
+    },
+
+    "article_smart_report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "report_type",
+        "target_ref",
+        "target_kind",
+        "passed",
+        "gates",
+        "failures",
+        "created_at"
+      ],
+      "properties": {
+        "report_type": { "type": "string", "const": "article_smart" },
+        "target_ref": { "$ref": "#/$defs/common_properties/target_ref" },
+        "target_kind": { "$ref": "#/$defs/common_properties/target_kind" },
+        "passed": { "type": "boolean" },
+        "gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["gate_id", "passed", "detail"],
+            "properties": {
+              "gate_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "THINKING_PROCESS_COHERENT",
+                  "SCAFFOLD_VISIBLE",
+                  "READING_LEVEL_APPROPRIATE",
+                  "WORKED_EXAMPLES_REFERENCE_REAL_ITEMS",
+                  "NO_ANSWER_LEAK_TO_BANK"
+                ]
+              },
+              "passed": { "type": "boolean" },
+              "detail": { "type": "string" }
+            }
+          }
+        },
+        "failures": { "$ref": "#/$defs/common_properties/failures" },
+        "created_at": { "$ref": "#/$defs/common_properties/created_at" }
+      }
+    },
+
+    "image_qc_report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "report_type",
+        "target_ref",
+        "target_kind",
+        "passed",
+        "gates",
+        "failures",
+        "created_at"
+      ],
+      "properties": {
+        "report_type": { "type": "string", "const": "image_qc" },
+        "target_ref": { "$ref": "#/$defs/common_properties/target_ref" },
+        "target_kind": { "$ref": "#/$defs/common_properties/target_kind" },
+        "passed": { "type": "boolean" },
+        "gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["gate_id", "passed", "detail"],
+            "properties": {
+              "gate_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "IMAGE_PRESENT",
+                  "DIMENSIONS_VALID",
+                  "LABEL_MARGINS_GE_20PX",
+                  "NO_ANSWER_LEAK_IN_IMAGE",
+                  "RENDER_STATUS_OK"
+                ]
+              },
+              "passed": { "type": "boolean" },
+              "detail": { "type": "string" }
+            }
+          }
+        },
+        "failures": { "$ref": "#/$defs/common_properties/failures" },
+        "created_at": { "$ref": "#/$defs/common_properties/created_at" }
+      }
+    },
+
+    "article_render_report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "report_type",
+        "target_ref",
+        "target_kind",
+        "passed",
+        "gates",
+        "failures",
+        "created_at"
+      ],
+      "properties": {
+        "report_type": { "type": "string", "const": "article_render" },
+        "target_ref": { "$ref": "#/$defs/common_properties/target_ref" },
+        "target_kind": { "$ref": "#/$defs/common_properties/target_kind" },
+        "passed": { "type": "boolean" },
+        "gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["gate_id", "passed", "detail"],
+            "properties": {
+              "gate_id": {
+                "type": "string",
+                "minLength": 1,
+                "examples": [
+                  "HEADLESS_RENDER_OK",
+                  "MATH_GLYPHS_PRESENT",
+                  "NO_OVERFLOW",
+                  "NO_BROKEN_IMAGES",
+                  "ALL_VAR_IDS_RESOLVE",
+                  "ACCESSIBILITY_CHECKS"
+                ]
+              },
+              "passed": { "type": "boolean" },
+              "detail": { "type": "string" }
+            }
+          }
+        },
+        "failures": { "$ref": "#/$defs/common_properties/failures" },
+        "created_at": { "$ref": "#/$defs/common_properties/created_at" },
+        "screenshot_path": {
+          "type": "string",
+          "description": "Optional repo-relative path to the rendered screenshot artifact."
+        }
+      }
+    }
+  }
+}

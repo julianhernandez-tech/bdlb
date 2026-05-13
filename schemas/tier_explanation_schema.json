@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdlb.local/schemas/tier_explanation_schema.json",
+  "title": "BDLB Tier Explanation",
+  "description": "Schema for tier_explanation.{tier}.json produced by tier-explanation-enricher. Validates the documentation-grounded explanation payload for a single lesson tier (easy/medium/hard).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tier",
+    "tier_spec_ref",
+    "thinking_steps",
+    "common_misconceptions",
+    "worked_example",
+    "vocabulary_notes",
+    "documentation_sources"
+  ],
+  "properties": {
+    "tier": {
+      "type": "string",
+      "enum": ["easy", "medium", "hard"],
+      "description": "Which lesson tier this explanation covers."
+    },
+    "tier_spec_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Path to the tier_spec.{tier}.json file this explanation enriches."
+    },
+    "thinking_steps": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Ordered sequence of cognitive steps a student should follow to solve a tier-level item."
+    },
+    "common_misconceptions": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["misconception", "why_students_make_it", "correction"],
+        "properties": {
+          "misconception": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Short statement of the misconception."
+          },
+          "why_students_make_it": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Cognitive/curricular reason students fall into this trap."
+          },
+          "correction": {
+            "type": "string",
+            "minLength": 1,
+            "description": "How to address or correct the misconception."
+          }
+        }
+      },
+      "description": "Documented misconceptions students commonly hold at this tier."
+    },
+    "worked_example": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["var_id_reference", "steps", "final_answer"],
+      "properties": {
+        "var_id_reference": {
+          "type": ["string", "null"],
+          "description": "Optional reference to a specific variation_matrix var_id this example illustrates. May be null if not yet bound to a variation."
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Ordered, student-facing solution steps."
+        },
+        "final_answer": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Final answer for the worked example."
+        }
+      },
+      "description": "A fully worked example, grounded in this tier's variation matrix."
+    },
+    "vocabulary_notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["term", "definition"],
+        "properties": {
+          "term": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Vocabulary term used at this tier."
+          },
+          "definition": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Grade-appropriate definition for the term."
+          }
+        }
+      },
+      "description": "Tier-appropriate vocabulary terms and definitions."
+    },
+    "documentation_sources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "File paths of documentation the enricher consulted to ground its content."
+    }
+  }
+}

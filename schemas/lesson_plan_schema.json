@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdlb.local/schemas/lesson_plan_schema.json",
+  "title": "BDLB Lesson Plan",
+  "description": "Schema for a Backward-Design Lesson Builder lesson_plan.json artifact produced by the backward-design-analyst sub-agent. Validates the three-tier (easy/medium/hard) plan derived from a single STAAR-style seed question.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lesson_goal",
+    "tek_alignment",
+    "rigor_anchor",
+    "tiers",
+    "scaffolding_logic",
+    "thinking_process",
+    "seed_question_ref",
+    "grade",
+    "created_at"
+  ],
+  "properties": {
+    "lesson_goal": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-sentence statement of what the student should be able to do after completing this lesson."
+    },
+    "tek_alignment": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+[A-Z]?$",
+      "description": "Texas Essential Knowledge and Skills code, e.g. '3.4K' or '5.3'."
+    },
+    "rigor_anchor": {
+      "type": "string",
+      "const": "hard",
+      "description": "The hard tier's rigor must match the seed question; this field is fixed to the literal string 'hard'."
+    },
+    "tiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["easy", "medium", "hard"],
+      "properties": {
+        "easy": { "$ref": "#/$defs/tier" },
+        "medium": { "$ref": "#/$defs/tier" },
+        "hard": { "$ref": "#/$defs/tier" }
+      },
+      "description": "Three-tier definition: easy is two rigor levels below seed, medium one below, hard matches seed."
+    },
+    "scaffolding_logic": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Plain-language explanation of how easy scaffolds into medium scaffolds into hard."
+    },
+    "thinking_process": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Ordered list of cognitive steps a student takes to solve a hard-tier item. Minimum 3 steps."
+    },
+    "seed_question_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Relative or absolute path to the seed question JSON file produced by seed-question-extractor."
+    },
+    "grade": {
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 8,
+      "description": "Grade level of the lesson (3–8)."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 date-time when this lesson_plan.json was generated."
+    }
+  },
+  "$defs": {
+    "tier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "item_type", "cognitive_demand"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short prose description of what items at this tier look like."
+        },
+        "item_type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Item type label, e.g. 'multiple_choice', 'griddable', 'short_constructed'."
+        },
+        "cognitive_demand": {
+          "type": "string",
+          "enum": ["recall", "procedural", "conceptual", "application", "analysis"],
+          "description": "Cognitive demand level for this tier."
+        }
+      }
+    }
+  }
+}

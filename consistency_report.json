@@ -1,0 +1,80 @@
+{
+  "report_version": "1.0",
+  "generated_at": "2026-05-13T22:41:30Z",
+  "specs_checked": [
+    "bdlb/agents/article-author.md",
+    "bdlb/agents/article-deterministic-qc.md",
+    "bdlb/agents/article-render-qc.md",
+    "bdlb/agents/article-smart-qc.md",
+    "bdlb/agents/backward-design-analyst.md",
+    "bdlb/agents/bdlb-orchestrator.md",
+    "bdlb/agents/image-qc.md",
+    "bdlb/agents/image-renderer.md",
+    "bdlb/agents/image-spec-generator.md",
+    "bdlb/agents/lesson-assembler.md",
+    "bdlb/agents/lesson-deterministic-qc.md",
+    "bdlb/agents/lesson-smart-qc.md",
+    "bdlb/agents/question-author.md",
+    "bdlb/agents/seed-question-extractor.md",
+    "bdlb/agents/tier-explanation-enricher.md",
+    "bdlb/agents/tier-specifier.md"
+  ],
+  "schemas_checked": [
+    "bdlb/schemas/agent_invocation_schema.json",
+    "bdlb/schemas/article_draft_schema.json",
+    "bdlb/schemas/image_spec_schema.json",
+    "bdlb/schemas/item_schema.json",
+    "bdlb/schemas/lesson_plan_schema.json",
+    "bdlb/schemas/qc_report_schema.json",
+    "bdlb/schemas/state_schema.json",
+    "bdlb/schemas/tier_explanation_schema.json",
+    "bdlb/schemas/tier_spec_schema.json"
+  ],
+  "checks": [
+    {
+      "check_id": "AGENT_ROSTER_COVERAGE",
+      "passed": true,
+      "detail": "All 15 non-orchestrator agents are referenced (code-span or table) by bdlb-orchestrator.md. The roster of 16 files exactly matches the canonical roster (no extras, no missing).",
+      "evidence": [
+        "All 16 expected agent files present under bdlb/agents/",
+        "bdlb-orchestrator.md backtick-references each of the 15 specialist agents (verified in \u00a7Agents this orchestrator dispatches table at lines 570-587 plus inline references in phases)"
+      ]
+    },
+    {
+      "check_id": "NO_INVENTED_AGENTS",
+      "passed": true,
+      "detail": "No spec references an agent name outside the canonical 16-agent roster. Scanned every backtick-quoted token across all 16 specs for agent-like suffixes (-qc, -author, -analyst, -specifier, -extractor, -enricher, -generator, -renderer, -assembler, -orchestrator) and found zero non-roster matches.",
+      "evidence": []
+    },
+    {
+      "check_id": "PATH_DISCIPLINE",
+      "passed": true,
+      "detail": "Every backtick-quoted path token across the 16 specs either starts with bdlb/, OR is inside a Forbidden-behaviors/Halt/Edge-case/Refusal/Folder-isolation section (correct banned-citation usage), OR is a path FRAGMENT scoped by an explicit parent declaration. Notable parent-scoped fragments: bdlb-orchestrator.md lines 545-568 are explicitly headed 'State you must persist between phases (all under `bdlb/runs/{run_id}/`)' so fragments like `items/{easy,medium,hard}/{var_id}.json` are bdlb-rooted. lesson-assembler.md `images/` refers to relative paths inside the generated lesson.html (correct usage). Evidence strings like `image_type=fraction_strip, final_answer='3/4'` and URL-template examples like `src=\"http://...\"` are not runtime paths.",
+      "violations": []
+    },
+    {
+      "check_id": "SCHEMA_REFS_EXIST",
+      "passed": true,
+      "detail": "All 9 schemas referenced by name (bdlb/schemas/*.json) in agent specs exist as files in bdlb/schemas/. Conversely, all 9 schema files are referenced by at least one spec (no orphans).",
+      "missing": [],
+      "orphans": []
+    },
+    {
+      "check_id": "RETRY_SEMANTICS",
+      "passed": true,
+      "detail": "bdlb-orchestrator.md \u00a7'Retry semantics (consolidated)' (lines 439-449) states 'Cap: **3 retries (4 attempts total) per side**' for both per-variation and per-article counters. No downstream spec contains contradictory phrasing (no occurrences of '5 retries', 'no retry cap', 'unlimited retries', '7 retries', '10 retries', or 'infinite retries' anywhere in the 15 specialist specs)."
+    },
+    {
+      "check_id": "FORBIDDEN_NON_CONTRADICTION",
+      "passed": true,
+      "detail": "All cross-spec Forbidden-behavior invariants hold: (1) image-renderer.md forbids generative image APIs (DALL-E, Sora, Imagen, Flux, Stable Diffusion, Midjourney, Runway, Replicate, Stability AI) in \u00a7Forbidden behaviors; (2) image-spec-generator.md forbids rendering ('DO NOT render images. You do not import PIL, Pillow, matplotlib...'); (3) question-author.md forbids self-validation ('MUST NOT self-validate or mark qc_status as anything other than \"draft\"'); (4) all 6 QC specs (lesson-deterministic-qc, lesson-smart-qc, article-deterministic-qc, article-smart-qc, article-render-qc, image-qc) forbid rewriting items/articles/images ('MUST NOT rewrite'); (5) lesson-assembler.md forbids QTI output ('MUST NOT produce QTI XML. BDLB output is HTML.')."
+    },
+    {
+      "check_id": "NO_STAAR_RUNTIME_REFS",
+      "passed": true,
+      "detail": "Scanned all 16 specs for STAAR runtime path patterns (outputs/grade{N}/, test_creation/outputs/, testcreation/). Every match occurs inside a Forbidden-behaviors / Halt / Edge-case / Refusal / Folder-isolation section, or in a line whose nearby context explicitly forbids the path (MUST NOT, Forbidden, Do not, Never, off-limits, halt, abort). Zero violations in runtime-context."
+    }
+  ],
+  "overall_passed": true,
+  "warnings": []
+}

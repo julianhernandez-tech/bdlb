@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdlb.local/schemas/article_draft_schema.json",
+  "title": "ArticleDraft",
+  "description": "A single draft article emitted by article-author (one per model, 3 parallel drafts per run).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "model_id",
+    "title",
+    "intro",
+    "thinking_process",
+    "tier_walkthroughs",
+    "summary",
+    "html_render",
+    "lesson_plan_ref",
+    "referenced_item_paths",
+    "vocabulary_used",
+    "created_at",
+    "length_bands"
+  ],
+  "properties": {
+    "model_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the model that authored this draft."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 120
+    },
+    "intro": {
+      "type": "string",
+      "minLength": 50
+    },
+    "thinking_process": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "tier_walkthroughs": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tier", "var_id_reference", "walkthrough"],
+        "properties": {
+          "tier": {
+            "type": "string",
+            "enum": ["easy", "medium", "hard"]
+          },
+          "var_id_reference": {
+            "type": "string",
+            "pattern": "^v[0-9]{2}$"
+          },
+          "walkthrough": {
+            "type": "string",
+            "minLength": 100
+          }
+        }
+      },
+      "allOf": [
+        {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "tier": { "const": "easy" }
+            },
+            "required": ["tier"]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "tier": { "const": "medium" }
+            },
+            "required": ["tier"]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "tier": { "const": "hard" }
+            },
+            "required": ["tier"]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 50
+    },
+    "html_render": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Sanitized HTML body of the article."
+    },
+    "lesson_plan_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Path or identifier of the lesson_plan.json this draft is grounded in."
+    },
+    "referenced_item_paths": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^bdlb/runs/[^/]+/items/.+$"
+      }
+    },
+    "vocabulary_used": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "length_bands": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total_words", "target_min_words", "target_max_words"],
+      "properties": {
+        "total_words": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "target_min_words": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "target_max_words": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

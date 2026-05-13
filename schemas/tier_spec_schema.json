@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdlb.local/schemas/tier_spec_schema.json",
+  "title": "BDLB Tier Spec",
+  "description": "Validates a tier_spec.{tier}.json artifact produced by the tier-specifier sub-agent. Each tier spec must contain exactly 20 unique variations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tier",
+    "item_type",
+    "must_include",
+    "must_exclude",
+    "image_required",
+    "image_spec_template",
+    "variation_matrix",
+    "uniqueness_rule",
+    "lesson_plan_ref"
+  ],
+  "properties": {
+    "tier": {
+      "type": "string",
+      "enum": ["easy", "medium", "hard"]
+    },
+    "item_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "must_include": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "must_exclude": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "image_required": {
+      "type": "boolean"
+    },
+    "image_spec_template": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "variation_matrix": {
+      "type": "array",
+      "minItems": 20,
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "var_id",
+          "numbers",
+          "context_seed",
+          "expected_answer"
+        ],
+        "properties": {
+          "var_id": {
+            "type": "string",
+            "pattern": "^v[0-9]{2}$"
+          },
+          "numbers": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              }
+            ]
+          },
+          "context_seed": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected_answer": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "number" }
+            ]
+          },
+          "image_overrides": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "uniqueness_rule": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Must describe the (numbers, context_seed) dedup rule enforced across the 20 variations within this tier."
+    },
+    "tier_explanation_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lesson_plan_ref": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

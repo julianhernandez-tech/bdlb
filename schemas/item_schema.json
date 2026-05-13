@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdlb.local/schemas/item_schema.json",
+  "title": "BDLB Item",
+  "description": "Output contract for the BDLB question-author. One JSON per authored item. Extends the STAAR item schema (inlined, not $ref'd) and adds BDLB-specific fields: tier, var_id, variation_basis.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tier",
+    "var_id",
+    "variation_basis",
+    "item_type",
+    "stem",
+    "solution",
+    "tek_alignment",
+    "grade",
+    "created_at",
+    "qc_status"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "bdlb-1.0.0",
+      "description": "BDLB item schema version."
+    },
+
+    "tier": {
+      "type": "string",
+      "enum": ["easy", "medium", "hard"],
+      "description": "BDLB tier this item belongs to. REQUIRED."
+    },
+    "var_id": {
+      "type": "string",
+      "pattern": "^v[0-9]{2}$",
+      "description": "Variation id within the tier (v00..v19). REQUIRED."
+    },
+    "variation_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numbers", "context_seed"],
+      "properties": {
+        "numbers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": ["number", "string"]
+          },
+          "description": "Concrete numeric values used to instantiate this variation."
+        },
+        "context_seed": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short label identifying the contextual setting (e.g. 'pencils_box', 'apples_basket')."
+        }
+      },
+      "description": "Programmatic basis used by tier-specifier to guarantee uniqueness. REQUIRED."
+    },
+
+    "item_type": {
+      "type": "string",
+      "minLength": 1,
+      "description": "BDLB item type. Free-form string per tier_spec (e.g. 'mcq_4', 'text_entry')."
+    },
+
+    "stem": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Plain-text stem. Non-empty."
+    },
+
+    "options": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Multiple-choice options. Exactly 4 strings if present."
+    },
+    "correct_option_index": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3,
+      "description": "Index into options of the correct answer. Required when options is present."
+    },
+
+    "image_ref": {
+      "type": ["string", "null"],
+      "description": "Relative path to a PNG under bdlb/runs/{run_id}/images/, or null if no image."
+    },
+
+    "solution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["final_answer", "steps"],
+      "properties": {
+        "final_answer": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Canonical final answer as a string."
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Worked solution steps suitable for a teacher rationale."
+        }
+      }
+    },
+
+    "tek_alignment": {
+      "type": "string",
+      "minLength": 1,
+      "description": "TEK code or alignment string this item maps to."
+    },
+    "grade": {
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 8,
+      "description": "Grade level for this item."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime when this item was authored."
+    },
+    "qc_status": {
+      "type": "string",
+      "enum": ["draft", "det_passed", "smart_passed", "accepted", "rejected"],
+      "description": "Current QC status of this item. REQUIRED; writer sets default."
+    },
+
+    "tek_code": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\([A-Z]\\)$",
+      "description": "Optional STAAR-style TEK code (inlined from STAAR schema for compatibility)."
+    },
+    "reporting_category": {
+      "type": "string",
+      "pattern": "^RC\\d$",
+      "description": "Optional STAAR reporting category (inlined for compatibility)."
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["easy", "medium", "hard"],
+      "description": "Optional STAAR difficulty mirror of tier (inlined for compatibility)."
+    },
+    "calculator_allowed": {
+      "type": "boolean",
+      "description": "Optional STAAR calculator flag (inlined for compatibility)."
+    },
+    "explanation": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Optional teacher-facing explanation (inlined from STAAR schema)."
+    },
+    "alignment_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tek_text", "tek_source"],
+      "properties": {
+        "tek_text": { "type": "string", "minLength": 5 },
+        "tek_source": { "type": "string", "minLength": 1 },
+        "style_basis": { "type": "string" }
+      },
+      "description": "Optional alignment evidence block (inlined from STAAR schema)."
+    }
+  },
+
+  "allOf": [
+    {
+      "description": "If options are present, correct_option_index is required.",
+      "if": {
+        "required": ["options"]
+      },
+      "then": {
+        "required": ["correct_option_index"]
+      }
+    }
+  ]
+}

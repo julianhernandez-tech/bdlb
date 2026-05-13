@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdlb.local/schemas/state_schema.json",
+  "title": "BDLB Runtime State",
+  "description": "Persisted runtime state at bdlb/runs/{run_id}/state.json. Read and written by bdlb-orchestrator between phases to enable resume-after-crash.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "seed_question_ref",
+    "grade",
+    "phase",
+    "retries",
+    "accepted_items",
+    "rejected_items",
+    "tier_specs_status",
+    "tier_explanations_status",
+    "article_drafts",
+    "selected_article",
+    "events_log_ref",
+    "last_updated",
+    "halt_reason"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Unique identifier for this lesson build run."
+    },
+    "seed_question_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Filesystem path or stable reference to the input STAAR-style seed question PNG (or parsed JSON)."
+    },
+    "grade": {
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 8,
+      "description": "Target grade level for the lesson build."
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "preflight",
+        "seed_extracted",
+        "lesson_planned",
+        "tiers_specified",
+        "tiers_explained",
+        "items_authoring",
+        "items_qc",
+        "images_pending",
+        "images_rendered",
+        "images_qc",
+        "articles_drafted",
+        "articles_qc",
+        "assembled",
+        "failed"
+      ],
+      "description": "Current BDLB build phase. Orchestrator advances only after artifacts written and validated."
+    },
+    "retries": {
+      "type": "object",
+      "description": "Per-agent retry counters. Keys are agent names; values are non-negative integers capped at 3.",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3
+      }
+    },
+    "accepted_items": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 60,
+      "description": "Canonical items accepted by all QC layers. Up to 60 (3 tiers x 20 variations).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tier", "var_id", "path"],
+        "properties": {
+          "tier": {
+            "type": "string",
+            "enum": ["easy", "medium", "hard"]
+          },
+          "var_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Filesystem path to the accepted item JSON under bdlb/runs/{run_id}/items/{tier}/{var_id}.json."
+          }
+        }
+      }
+    },
+    "rejected_items": {
+      "type": "array",
+      "minItems": 0,
+      "description": "Items that failed QC. No upper bound (retries may accumulate).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tier", "var_id", "path", "reason"],
+        "properties": {
+          "tier": {
+            "type": "string",
+            "enum": ["easy", "medium", "hard"]
+          },
+          "var_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "QC failure reason copied from the qc_report."
+          }
+        }
+      }
+    },
+    "tier_specs_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["easy", "medium", "hard"],
+      "properties": {
+        "easy": {
+          "type": "string",
+          "enum": ["pending", "ready", "failed"]
+        },
+        "medium": {
+          "type": "string",
+          "enum": ["pending", "ready", "failed"]
+        },
+        "hard": {
+          "type": "string",
+          "enum": ["pending", "ready", "failed"]
+        }
+      }
+    },
+    "tier_explanations_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["easy", "medium", "hard"],
+      "properties": {
+        "easy": {
+          "type": "string",
+          "enum": ["pending", "ready", "failed"]
+        },
+        "medium": {
+          "type": "string",
+          "enum": ["pending", "ready", "failed"]
+        },
+        "hard": {
+          "type": "string",
+          "enum": ["pending", "ready", "failed"]
+        }
+      }
+    },
+    "article_drafts": {
+      "type": "array",
+      "minItems": 0,
+      "description": "Parallel article drafts (typically 3, one per model). Tracked through QC pipeline.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["model_id", "path", "qc_status"],
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Identifier of the model that produced this draft."
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Filesystem path to the draft JSON under bdlb/runs/{run_id}/articles/draft_{model_id}.json."
+          },
+          "qc_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "det_passed",
+              "smart_passed",
+              "render_passed",
+              "accepted",
+              "rejected"
+            ]
+          }
+        }
+      }
+    },
+    "selected_article": {
+      "type": ["string", "null"],
+      "description": "model_id of the article draft chosen as canonical, or null until selection."
+    },
+    "events_log_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Filesystem path to this run's append-only events log (JSONL)."
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp of the most recent state write."
+    },
+    "halt_reason": {
+      "type": ["string", "null"],
+      "description": "Non-null when phase == 'failed'; explains the halt trigger."
+    }
+  }
+}

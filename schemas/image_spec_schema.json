@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdlb.local/schemas/image_spec_schema.json",
+  "title": "BDLB Image Spec",
+  "description": "Validates a deterministic imagespec emitted by image-spec-generator and consumed by image-renderer. No nulls except for caption; no unknown fields except inside elements[*].params.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "image_type",
+    "target_size_px",
+    "labels",
+    "elements",
+    "style",
+    "caption",
+    "notes",
+    "must_not_leak_answer",
+    "min_label_margin_px"
+  ],
+  "properties": {
+    "image_type": {
+      "type": "string",
+      "enum": [
+        "fraction_strip",
+        "number_line",
+        "array",
+        "bar_model",
+        "place_value_blocks",
+        "grid",
+        "shape",
+        "table_as_image",
+        "geometry_figure",
+        "other"
+      ]
+    },
+    "target_size_px": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 2000
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 2000
+        }
+      }
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["text", "x", "y", "font_size_px"],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "font_size_px": {
+            "type": "integer",
+            "minimum": 8
+          }
+        }
+      }
+    },
+    "elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "params"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "style": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["background", "stroke_color", "stroke_width_px", "font_family"],
+      "properties": {
+        "background": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stroke_color": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stroke_width_px": {
+          "type": "number",
+          "minimum": 0
+        },
+        "font_family": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "caption": {
+      "type": ["string", "null"]
+    },
+    "notes": {
+      "type": "string"
+    },
+    "must_not_leak_answer": {
+      "const": true
+    },
+    "min_label_margin_px": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 20
+    }
+  }
+}

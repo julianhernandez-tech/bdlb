@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bdlb.local/schemas/agent_invocation_schema.json",
+  "title": "BDLB Agent Invocation Audit Record",
+  "description": "Audit record written every time the BDLB orchestrator dispatches a sub-agent at runtime. One record per dispatch attempt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "invocation_id",
+    "agent_name",
+    "spec_version",
+    "spec_sha256",
+    "model",
+    "temperature",
+    "input_hash",
+    "output_hash",
+    "started_at",
+    "ended_at",
+    "status",
+    "attempt_number",
+    "inputs_ref",
+    "outputs_ref",
+    "error"
+  ],
+  "properties": {
+    "invocation_id": {
+      "type": "string",
+      "description": "Unique identifier for this single dispatch attempt. UUID-shaped.",
+      "pattern": "^[a-f0-9-]{36}$"
+    },
+    "agent_name": {
+      "type": "string",
+      "description": "Name of the dispatched sub-agent. MUST match an agent filename under bdlb/agents/ with the .md extension removed.",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "spec_version": {
+      "type": "string",
+      "description": "Version string declared in the agent spec front-matter at dispatch time.",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "spec_sha256": {
+      "type": "string",
+      "description": "SHA-256 of the agent .md spec file contents at dispatch time. Lower-case hex.",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "model": {
+      "type": "string",
+      "description": "Exact model identifier used for this invocation (e.g. claude-opus-4-7).",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "temperature": {
+      "type": "number",
+      "description": "Sampling temperature used for this invocation.",
+      "minimum": 0,
+      "maximum": 2
+    },
+    "input_hash": {
+      "type": "string",
+      "description": "SHA-256 of the canonical JSON-serialized inputs bundle passed to the sub-agent. Lower-case hex.",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "output_hash": {
+      "type": "string",
+      "description": "SHA-256 of the canonical JSON-serialized outputs bundle returned by the sub-agent. Lower-case hex. For non-success status, hash of whatever partial/empty output was captured.",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "started_at": {
+      "type": "string",
+      "description": "Timestamp when the orchestrator dispatched the sub-agent. RFC 3339 / ISO 8601 date-time, UTC recommended.",
+      "format": "date-time"
+    },
+    "ended_at": {
+      "type": "string",
+      "description": "Timestamp when the orchestrator received the sub-agent's terminal response (or hit timeout). RFC 3339 / ISO 8601 date-time.",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "description": "Terminal status of this single invocation attempt.",
+      "enum": [
+        "success",
+        "failed",
+        "timeout",
+        "rejected_by_qc"
+      ]
+    },
+    "attempt_number": {
+      "type": "integer",
+      "description": "Which retry attempt this is for the given (agent_name, logical task) pair. 1-indexed. BDLB retry cap is 3.",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "inputs_ref": {
+      "type": "string",
+      "description": "Relative path (from repo root) to the persisted inputs.json snapshot for this invocation.",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "outputs_ref": {
+      "type": "string",
+      "description": "Relative path (from repo root) to the persisted outputs file produced by this invocation.",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "error": {
+      "description": "Error message string when status is not 'success'. MUST be null when status is 'success'.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 4096
+    }
+  }
+}
